@@ -16,6 +16,11 @@ class UserController extends Controller
 {
     use PasswordValidationRules;
 
+    public function fetch(Request $request)
+    {
+        return ResponseFormatter::success($request->user(),'Data profile user berhasil diambil');
+    }
+
     public function login(Request $request)
     {
         try {
@@ -88,5 +93,38 @@ class UserController extends Controller
         $token = $request->user()->currentAccessToken()->delete();
 
         return ResponseFormatter::success($token,'Token Revoked');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $data = $request->all();
+
+        $user = Auth::user();
+        $user->update($data);
+
+        return ResponseFormatter::success($user,'Profile Updated');
+    }
+
+    public function updatePhoto(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|image|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error(['error'=>$validator->errors()], 'Update Photo Fails', 401);
+        }
+
+        if ($request->file('file')) {
+
+            $file = $request->file->store('assets/user', 'public');
+
+            //store your file into database
+            $user = Auth::user();
+            $user->profile_photo_path = $file;
+            $user->update();
+
+            return ResponseFormatter::success([$file],'File successfully uploaded');
+        }
     }
 }
