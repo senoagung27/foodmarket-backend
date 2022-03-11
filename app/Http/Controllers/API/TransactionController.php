@@ -74,10 +74,10 @@ class TransactionController extends Controller
         ]);
 
         // Konfigurasi midtrans
-        Config::$serverKey = config('services.midtrans.serverKey');
-        Config::$isProduction = config('services.midtrans.isProduction');
-        Config::$isSanitized = config('services.midtrans.isSanitized');
-        Config::$is3ds = config('services.midtrans.is3ds');
+        // Config::$serverKey = config('services.midtrans.serverKey');
+        // Config::$isProduction = config('services.midtrans.isProduction');
+        // Config::$isSanitized = config('services.midtrans.isSanitized');
+        // Config::$is3ds = config('services.midtrans.is3ds');
 
         $transaction = Transaction::with(['food','user'])->find($transaction->id);
 
@@ -96,9 +96,9 @@ class TransactionController extends Controller
 
         try {
             // Ambil halaman payment midtrans
-            $paymentUrl = Snap::createTransaction($midtrans)->redirect_url;
+            // $paymentUrl = Snap::createTransaction($midtrans)->redirect_url;
 
-            $transaction->payment_url = $paymentUrl;
+            // $transaction->payment_url = $paymentUrl;
             $transaction->save();
 
             // Redirect ke halaman midtrans
@@ -107,6 +107,16 @@ class TransactionController extends Controller
         catch (Exception $e) {
             return ResponseFormatter::error($e->getMessage(),'Transaksi Gagal');
         }
+    }
+
+    public function changeStatus(Request $request, $id, $status)
+    {
+        $transaction = Transaction::findOrFail($id);
+
+        $transaction->status = $status;
+        $transaction->save();
+
+        return redirect()->route('transactions.show', $id);
     }
 
 }
