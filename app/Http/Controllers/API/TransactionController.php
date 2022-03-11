@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use Exception;
+use Midtrans\Snap;
+use Midtrans\Config;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
@@ -74,10 +76,10 @@ class TransactionController extends Controller
         ]);
 
         // Konfigurasi midtrans
-        // Config::$serverKey = config('services.midtrans.serverKey');
-        // Config::$isProduction = config('services.midtrans.isProduction');
-        // Config::$isSanitized = config('services.midtrans.isSanitized');
-        // Config::$is3ds = config('services.midtrans.is3ds');
+        Config::$serverKey = config('services.midtrans.serverKey');
+        Config::$isProduction = config('services.midtrans.isProduction');
+        Config::$isSanitized = config('services.midtrans.isSanitized');
+        Config::$is3ds = config('services.midtrans.is3ds');
 
         $transaction = Transaction::with(['food','user'])->find($transaction->id);
 
@@ -96,9 +98,9 @@ class TransactionController extends Controller
 
         try {
             // Ambil halaman payment midtrans
-            // $paymentUrl = Snap::createTransaction($midtrans)->redirect_url;
+            $paymentUrl = Snap::createTransaction($midtrans)->redirect_url;
 
-            // $transaction->payment_url = $paymentUrl;
+            $transaction->payment_url = $paymentUrl;
             $transaction->save();
 
             // Redirect ke halaman midtrans
