@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\API\MidtransController;
 
 /*
@@ -15,12 +16,21 @@ use App\Http\Controllers\API\MidtransController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('admin-dashboard');
 });
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+Route::prefix('dashboard')
+    ->middleware(['auth:sanctum','admin'])
+    ->group(function() {
+        Route::get('/', [DashboardController::class, 'index'])
+            ->name('admin-dashboard');
+        // Route::resource('food', FoodController::class);
+        // Route::resource('users', UserController::class);
+
+        // Route::get('transactions/{id}/status/{status}', [TransactionController::class, 'changeStatus'])
+        //     ->name('transactions.changeStatus');
+        // Route::resource('transactions', TransactionController::class);
+    });
 
 
 Route::get('midtrans/success', [MidtransController::class, 'success']);
