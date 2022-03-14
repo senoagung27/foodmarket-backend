@@ -1,8 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\FoodController;
+use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\API\MidtransController;
+use App\Http\Controllers\API\TransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,21 +19,44 @@ use App\Http\Controllers\API\MidtransController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('admin-dashboard');
+    return view('dashboard');
 });
 
-Route::prefix('dashboard')
-    ->middleware(['auth:sanctum','admin'])
-    ->group(function() {
-        Route::get('/', [DashboardController::class, 'index'])
-            ->name('admin-dashboard');
-        // Route::resource('food', FoodController::class);
-        // Route::resource('users', UserController::class);
+Route::group(['middleware' =>['auth','IsAdmin:ADMIN,USER']], function(){ 
+    Route::get('/', [DashboardController::class, 'index'])
+            ->name('dashboard');
+            Route::resource('food', FoodController::class);
+    Route::resource('users', UserController::class);
 
-        // Route::get('transactions/{id}/status/{status}', [TransactionController::class, 'changeStatus'])
-        //     ->name('transactions.changeStatus');
-        // Route::resource('transactions', TransactionController::class);
-    });
+    Route::get('transactions/{id}/status/{status}', [TransactionController::class, 'changeStatus'])
+    ->name('transactions.changeStatus');
+    Route::resource('transactions', TransactionController::class);
+
+});
+// Route::middleware(['auth:sanctum', 'admin']);
+// Route::get('/', [DashboardController::class, 'index'])
+//     ->name('dashboard');
+// Route::resource('food', FoodController::class);
+// Route::resource('transactions', TransactionController::class);
+// Route::resource('users', UserController::class);
+
+// Route::get('/', function () {
+//     return redirect()->route('dashboard');
+// });
+
+// Dashboard
+// Route::prefix('dashboard')
+//     ->middleware(['auth:sanctum','admin'])
+//     ->group(function() {
+//         Route::get('/', [DashboardController::class, 'index'])
+//             ->name('dashboard');
+//         Route::resource('food', FoodController::class);
+//         Route::resource('users', UserController::class);
+
+//         Route::get('transactions/{id}/status/{status}', [TransactionController::class, 'changeStatus'])
+//             ->name('transactions.changeStatus');
+//         Route::resource('transactions', TransactionController::class);
+//     });
 
 
 Route::get('midtrans/success', [MidtransController::class, 'success']);
